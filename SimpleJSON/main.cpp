@@ -24,8 +24,34 @@ bool LoadFromJson(const char* filename, std::vector<Monster>& monsters)
 		ifs.close();
 		return false;
 	}
+	Document d;
+	d.Parse(ss.str().c_str());
 
-	std::cout << ss.str().c_str();
+	for (const auto& e : d["monsters"].GetArray())
+	{
+		Monster monster;
+
+		monster.SetName(e["name"].GetString());
+
+		Status status;
+		auto statObj = e["status"].GetObject();
+		status.mLevel = statObj["level"].GetInt();
+		status.mHP = statObj["hp"].GetInt();
+		status.mMP = statObj["mp"].GetInt();
+
+		monster.SetStatus(status);
+
+		for (const auto& item : e["item"].GetArray())
+		{
+			Item tmpItem;
+			tmpItem.mName = item["items"].GetString();
+			tmpItem.mGold = item["gold"].GetInt();
+
+			monster.Additem(tmpItem);
+		}
+		monsters.push_back(monster);
+	}
+
 	return true;
 }
 
